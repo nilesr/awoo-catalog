@@ -74,7 +74,7 @@ var doTheThing = function doTheThing(a) {
 	elem.innerHTML = "Loading...";
 
 	var key = board + ":" + id;
-	var oldreplies = GM_getValue(key, -1);
+	var oldreplies = GM_getValue(key, 0);
 	var replies = Number(a.getAttribute("data-replies"));
 	comparison_and_update_elem(key, replies, a, elem, closed, oldreplies);
 };
