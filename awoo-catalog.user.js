@@ -18,6 +18,7 @@ var onload = function() {
 	}
 	started = true;
 	page_count_container = document.getElementById("pagecount_container");
+	/*
 	if (document.getElementById("load_next_button") === null) {
 		var btn = document.createElement("button");
 		btn.id = "load_next_button";
@@ -58,6 +59,7 @@ var onload = function() {
 		page_count_container.appendChild(document.createElement("br"));
 		page_count_container.appendChild(btn);
 	}
+	*/
 
 	Array.prototype.slice.call(document.getElementsByTagName("a"), 0).forEach(doTheThing);
 };
