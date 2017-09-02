@@ -3,7 +3,11 @@
 // @namespace 	https://niles.xyz
 // @include 	http://boards.lolis.download/*
 // @include 	https://niles.lain.city/*
-// @version		1.0
+// @include 	http://dangeru.us/*
+// @include 	https://dangeru.us/*
+// @include 	http://boards.dangeru.us/*
+// @include 	https://boards.dangeru.us/*
+// @version		1.1
 // @grant 		GM_getValue
 // @grant 		GM_setValue
 // @run-at 		document-end
