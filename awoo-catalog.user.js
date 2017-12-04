@@ -75,6 +75,7 @@ var onload = function() {
 
 	if (document.getElementById("load_next_button") === null) {
 		var btn = document.createElement("button");
+		btn.classList.add("button_styled");
 		btn.id = "load_next_button";
 		//btn.innerText = "load page " + (page + 1);
 		btn.innerText = "load page " + (page + 1);
@@ -84,12 +85,14 @@ var onload = function() {
 	}
 
 	Array.prototype.slice.call(document.getElementsByTagName("a"), 0).forEach(doTheThing);
-
+	var doch = function() {
+		return $(document).height() - document.getElementById("draggable").clientHeight;
+	}
 	var win = $(window);
-	var doc = $(document);
-	if (doc.height() <= win.height()) btnListener();
+	var winh = function() { return win.height(); };
+	if (doch() <= winh()) btnListener();
 	win.scroll(function() {
-		if (doc.height() - win.height() == win.scrollTop()) {
+		if (doch() - winh() == win.scrollTop()) {
 			btnListener();
 		}
 	});
