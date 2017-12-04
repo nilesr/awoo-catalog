@@ -87,6 +87,7 @@ var onload = function() {
 
 	var win = $(window);
 	var doc = $(document);
+	if (doc.height() <= win.height()) btnListener();
 	win.scroll(function() {
 		if (doc.height() - win.height() == win.scrollTop()) {
 			btnListener();
