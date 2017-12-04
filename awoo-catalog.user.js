@@ -13,8 +13,13 @@
 // @run-at 		document-end
 // ==/UserScript==
 var started = false;
+var request_in_progress = false;
+var out_of_posts = false;
 var page = 1;
 var btnListener = function btnListener() {
+	if (request_in_progress) return;
+	if (out_of_posts) return;
+	request_in_progress = true;
 	var btn = document.getElementById("load_next_button");
 	var href = document.location.href;
 	if (href[href.length - 1] == "/") href = href.substr(0, href.length - 1);
@@ -31,7 +36,7 @@ var btnListener = function btnListener() {
 			console.log("Request done");
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(xhr.responseText, "text/html");
-			var are_we_there_yet = 0;
+			var added = 0;
 			Array.prototype.slice.call(doc.getElementById("sitecorner").children, 0).forEach(function(elem) {
 				if (!(elem.tagName == "A" && elem.hasAttribute("data-replies"))) return;
 				var newa = document.createElement("a");
@@ -42,10 +47,17 @@ var btnListener = function btnListener() {
 				var sc = document.getElementById("sitecorner");
 				sc.insertBefore(newa, page_count_container);
 				sc.insertBefore(document.createElement("br"), page_count_container);
+				added++;
 				doTheThing(newa);
 			});
-			btn.disabled = false;
-			btn.innerText = "load page " + (page + 1);
+			if (added == 0) {
+				out_of_posts = true;
+				btn.innerText = "no more posts";
+			} else {
+				btn.disabled = false;
+				btn.innerText = "load page " + (page + 1);
+			}
+			request_in_progress = false;
 		}
 	};
 	xhr.open("GET", url);
