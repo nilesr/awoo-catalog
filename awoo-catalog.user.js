@@ -44,17 +44,31 @@ var btnListener = function btnListener() {
 			}
 			var added = 0;
 			Array.prototype.slice.call(doc.getElementById("sitecorner").children, 0).forEach(function(elem) {
-				if (!(elem.tagName == "A" && elem.hasAttribute("data-replies"))) return;
+				if (elem.tagName != "A" && elem.tagName != "I") return;
+				console.log(elem.href)
+				if (elem.tagName == "A" && !(elem.hasAttribute("data-replies") || elem.href.indexOf("/ip/") >= 0)) return;
 				var newa = document.createElement("a");
 				Array.prototype.slice.call(elem.attributes, 0).forEach(function (attr) {
 					newa.setAttribute(attr.nodeName, attr.value);
 				});
 				newa.innerHTML = elem.innerHTML;
 				var sc = document.getElementById("sitecorner");
+				if (elem.tagName == "A" && elem.href.indexOf("/ip/") < 0) {
+					sc.insertBefore(document.createElement("br"), page_count_container);
+				}
 				sc.insertBefore(newa, page_count_container);
-				sc.insertBefore(document.createElement("br"), page_count_container);
-				added++;
-				doTheThing(newa);
+				if (elem.tagName == "A") {
+					added++;
+					doTheThing(newa);
+				} else {
+					var space = document.createElement("span");
+					space.innerText = " ";
+					sc.insertBefore(space, newa);
+					// THIS DUPLICATES ol BUT IT'S THE DIRTY HACK I NEED RIGHT NOW
+					// Also it's broken right now because move doesn't exist
+				    newa.onmousemove = function(e) { move(e) };
+          			newa.onmouseover = function() {hover(newa);};
+          			newa.onmouseout = function() { unhover() };}
 			});
 			if (added == 0) {
 				out_of_posts = true;
