@@ -36,6 +36,12 @@ var btnListener = function btnListener() {
 			console.log("Request done");
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(xhr.responseText, "text/html");
+			// Fix for android pre-4.4.4
+			if (doc == null || doc == undefined) {
+				doc = document.implementation.createHTMLDocument("");
+				var doc_elt = doc.documentElement;
+				doc_elt.innerHTML = xhr.responseText
+			}
 			var added = 0;
 			Array.prototype.slice.call(doc.getElementById("sitecorner").children, 0).forEach(function(elem) {
 				if (!(elem.tagName == "A" && elem.hasAttribute("data-replies"))) return;
