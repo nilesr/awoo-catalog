@@ -22,9 +22,11 @@ var btnListener = function btnListener() {
 	request_in_progress = true;
 	var btn = document.getElementById("load_next_button");
 	var href = document.location.href;
-	if (href[href.length - 1] == "/") href = href.substr(0, href.length - 1);
-	var board = href.substr(href.lastIndexOf("/") + 1);
-	var url = document.location.href + "?page=" + page;
+	var idx = 0;
+	while (idx < href.length && href[idx] != "?") idx++;
+	href = href.substr(0, idx);
+	var url = href + "?page=" + page;
+	console.log(url);
 	page++;
 	//btn.innerText = "load page " + (page + 1);
 	btn.innerText = "Loading...";
@@ -66,9 +68,9 @@ var btnListener = function btnListener() {
 					sc.insertBefore(space, newa);
 					// THIS DUPLICATES ol BUT IT'S THE DIRTY HACK I NEED RIGHT NOW
 					// Also it's broken right now because move doesn't exist
-				    newa.onmousemove = function(e) { move(e) };
-          			newa.onmouseover = function() {hover(newa);};
-          			newa.onmouseout = function() { unhover() };}
+					newa.onmousemove = function(e) { move(e) };
+					newa.onmouseover = function() {hover(newa);};
+					newa.onmouseout = function() { unhover() };}
 			});
 			if (added == 0) {
 				out_of_posts = true;
@@ -91,6 +93,14 @@ var onload = function() {
 		return;
 	}
 	started = true;
+
+	var href = document.location.href;
+	while (href.length > 0 && href[0] != "=") href = href.substr(1)
+	href = href.substr(1)
+	if (href.length > 0) {
+		page = parseInt(href) + 1;
+	}
+
 	page_count_container = document.getElementById("pagecount_container");
 
 	if (document.getElementById("load_next_button") === null) {
