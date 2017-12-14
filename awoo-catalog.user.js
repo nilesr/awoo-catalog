@@ -302,7 +302,7 @@ var open_options = function open_options() {
 	 * desktop via GM - have GM_setValue;
 	 * desktop via injection - have localStorage aliased in via GM_setValue
 	 */
-	document.getElementById("options_button").innerHTML = "";
+	document.getElementById("options_button").outerHTML = "";
 	var all_options = document.createElement("div");
 	all_options.id = "all_options";
 	/*
