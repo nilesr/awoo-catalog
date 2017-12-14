@@ -31,7 +31,6 @@ var btnListener = function btnListener() {
 	var url = href + "?page=" + page;
 	console.log(url);
 	page++;
-	//btn.innerText = "load page " + (page + 1);
 	btn.innerText = "Loading...";
 	btn.disabled = true;
 	var xhr = new XMLHttpRequest();
@@ -79,10 +78,10 @@ var btnListener = function btnListener() {
 			});
 			if (added == 0) {
 				out_of_posts = true;
-				btn.innerText = "no more posts";
+				btn.innerText = "No more posts.";
 			} else {
 				btn.disabled = false;
-				btn.innerText = "load page " + (page + 1);
+				btn.innerText = "Load page " + (page + 1);
 			}
 			request_in_progress = false;
 		}
@@ -90,6 +89,18 @@ var btnListener = function btnListener() {
 	xhr.open("GET", url);
 	xhr.send();
 };
+
+var apply_one_default = function apply_one_default(key, value) {
+	var result = GM_getValue(key, "");
+	if (result == null || result == undefined || result.length == 0) {
+		GM_setValue(key, value);
+	}
+}
+var apply_defaults = function apply_defaults() {
+	apply_one_default("wide", "false");
+	apply_one_default("invert", "false");
+	apply_one_default("infscroll", "true");
+}
 
 var onload = function() {
 
@@ -99,12 +110,48 @@ var onload = function() {
 	}
 	started = true;
 
-	window.init_settings_button("Userscript Options", open_options);
+	apply_defaults();
+
 	var page_count_container = document.getElementById("pagecount_container");
 	if (page_count_container == null) {
 		replies_page_onload();
-		return;
+	} else {
+		board_page_onload();
 	}
+	window.init_settings_button("Userscript Options", open_options);
+}
+
+var replies_page_onload = function replies_page_onload() {
+	check_wide();
+	check_invert();
+	// do not check infscroll
+};
+var board_page_onload = function board_page_onload() {
+	// Load new reply count for everything
+	to_array(document.getElementsByTagName("a")).forEach(doTheThing);
+	check_invert();
+	check_infscroll();
+	// do not check wide
+};
+
+var check_infscroll = function check_infscroll() {
+	if (GM_getValue("infscroll", "false").toLowerCase() == "true") {
+		infscroll();
+	}
+};
+var check_wide = function check_wide() {
+	if (GM_getValue("wide", "false").toLowerCase() == "true") {
+		go_wide();
+	}
+};
+var check_invert = function check_invert() {
+	if (GM_getValue("invert", "false").toLowerCase() == "true") {
+		invert();
+	}
+};
+
+var infscroll = function infscroll() {
+	var page_count_container = document.getElementById("pagecount_container");
 	// Pull the current page from the URL, kind of dirty
 	var href = document.location.href;
 	while (href.length > 0 && href[0] != "=") href = href.substr(1)
@@ -112,8 +159,6 @@ var onload = function() {
 	if (href.length > 0) {
 		page = parseInt(href) + 1;
 	}
-
-
 	// Create infinite scrolling "next page" button
 	if (document.getElementById("load_next_button") === null) {
 		var btn = document.createElement("button");
@@ -124,11 +169,6 @@ var onload = function() {
 		page_count_container.appendChild(document.createElement("br"));
 		page_count_container.appendChild(btn);
 	}
-
-	// Load new reply count for everything
-	to_array(document.getElementsByTagName("a")).forEach(doTheThing);
-
-	
 	// Initialize infinite scrolling
 	var doch = function() {
 		return $(document).height() - document.getElementById("draggable").clientHeight;
@@ -141,23 +181,6 @@ var onload = function() {
 			btnListener();
 		}
 	});
-
-	//check_wide();
-	check_invert();
-};
-var replies_page_onload = function replies_page_onload() {
-	check_wide();
-	check_invert();
-};
-var check_wide = function check_wide() {
-	if (GM_getValue("wide", "false").toLowerCase() == "true") {
-		go_wide();
-	}
-};
-var check_invert = function check_invert() {
-	if (GM_getValue("invert", "false").toLowerCase() == "true") {
-		invert();
-	}
 };
 
 var doTheThing = function doTheThing(a) {
@@ -309,11 +332,12 @@ var open_options = function open_options() {
 <div style="z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: fixed; top: 10%; left: 10%; width: 60%; padding: 10%;">
 	<input type="checkbox" id="enable_wide" name="enable_wide" /><label for="enable_wide">Wide mode</label><br />
 	<input type="checkbox" id="enable_invert" name="enable_invert" /><label for="enable_invert">Invert colors</label><br />
+	<input type="checkbox" id="enable_infscroll" name="enable_infscroll" /><label for="enable_infscroll">Infinite scrolling</label><br />
 	<button id="disable_userscript">Disable userscript</button><br />
 	<button id="userscript_close">Close</button>
 </div>
 	 */
-	all_options.innerHTML = "<div style=\"z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: fixed; top: 10%; left: 10%; width: 60%; padding: 10%;\">\n\t<input type=\"checkbox\" id=\"enable_wide\" name=\"enable_wide\" /><label for=\"enable_wide\">Wide mode</label><br />\n\t<input type=\"checkbox\" id=\"enable_invert\" name=\"enable_invert\" /><label for=\"enable_invert\">Invert colors</label><br />\n\t<button id=\"disable_userscript\">Disable userscript</button><br />\n\t<button id=\"userscript_close\">Close</button>\n</div>\n";
+	all_options.innerHTML = "<div style=\"z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: fixed; top: 10%; left: 10%; width: 60%; padding: 10%;\">\n\t<input type=\"checkbox\" id=\"enable_wide\" name=\"enable_wide\" /><label for=\"enable_wide\">Wide mode</label><br />\n\t<input type=\"checkbox\" id=\"enable_invert\" name=\"enable_invert\" /><label for=\"enable_invert\">Invert colors</label><br />\n\t<input type=\"checkbox\" id=\"enable_infscroll\" name=\"enable_infscroll\" /><label for=\"enable_infscroll\">Infinite scrolling</label><br />\n\t<button id=\"disable_userscript\">Disable userscript</button><br />\n\t<button id=\"userscript_close\">Close</button>\n</div>\n";
 
 	document.body.appendChild(all_options);
 	var ei = document.getElementById("enable_invert");
@@ -330,6 +354,12 @@ var open_options = function open_options() {
 			return;
 		}
 		GM_setValue("wide", ew.checked.toString());
+		document.location.reload();
+	})
+	var eis = document.getElementById("enable_infscroll");
+	eis.checked = GM_getValue("infscroll", "false").toLowerCase() == "true";
+	eis.addEventListener("change", function() {
+		GM_setValue("infscroll", eis.checked.toString());
 		document.location.reload();
 	})
 	document.getElementById("disable_userscript").addEventListener("click", function() {
