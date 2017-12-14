@@ -362,7 +362,7 @@ var init_settings_button = function init_settings_button() {
 	options.addEventListener("click", open_options);
 	options.style.position = "fixed";
 	options.style.bottom = "10px";
-	options.style.right = "10px";
+	options.style.left = "10px";
 	options.style.padding = "3px";
 	options.style.borderRadius = "3px";
 	options.id = "options_button";
