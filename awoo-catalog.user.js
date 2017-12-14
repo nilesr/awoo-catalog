@@ -306,14 +306,14 @@ var open_options = function open_options() {
 	var all_options = document.createElement("div");
 	all_options.id = "all_options";
 	/*
-<div style="z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: absolute; top: 10%; left: 10%; width: 60%; padding: 10%;">
+<div style="z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: fixed; top: 10%; left: 10%; width: 60%; padding: 10%;">
 	<input type="checkbox" id="enable_wide" name="enable_wide" /><label for="enable_wide">Wide mode</label><br />
 	<input type="checkbox" id="enable_invert" name="enable_invert" /><label for="enable_invert">Invert colors</label><br />
 	<button id="disable_userscript">Disable userscript</button><br />
 	<button id="userscript_close">Close</button>
 </div>
 	 */
-	all_options.innerHTML = "<div style=\"z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: absolute; top: 10%; left: 10%; width: 60%; padding: 10%;\">\n\t<input type=\"checkbox\" id=\"enable_wide\" name=\"enable_wide\" /><label for=\"enable_wide\">Wide mode</label><br />\n\t<input type=\"checkbox\" id=\"enable_invert\" name=\"enable_invert\" /><label for=\"enable_invert\">Invert colors</label><br />\n\t<button id=\"disable_userscript\">Disable userscript</button><br />\n\t<button id=\"userscript_close\">Close</button>\n</div>\n";
+	all_options.innerHTML = "<div style=\"z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: fixed; top: 10%; left: 10%; width: 60%; padding: 10%;\">\n\t<input type=\"checkbox\" id=\"enable_wide\" name=\"enable_wide\" /><label for=\"enable_wide\">Wide mode</label><br />\n\t<input type=\"checkbox\" id=\"enable_invert\" name=\"enable_invert\" /><label for=\"enable_invert\">Invert colors</label><br />\n\t<button id=\"disable_userscript\">Disable userscript</button><br />\n\t<button id=\"userscript_close\">Close</button>\n</div>\n";
 
 	document.body.appendChild(all_options);
 	var ei = document.getElementById("enable_invert");
