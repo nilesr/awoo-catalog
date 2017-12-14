@@ -16,6 +16,9 @@ var started = false;
 var request_in_progress = false;
 var out_of_posts = false;
 var page = 1;
+var to_array = function to_array(thing) {
+	return Array.prototype.slice.call(thing, 0)
+}
 var btnListener = function btnListener() {
 	if (request_in_progress) return;
 	if (out_of_posts) return;
@@ -47,12 +50,12 @@ var btnListener = function btnListener() {
 			var added = 0;
 			var page_count_container = document.getElementById("pagecount_container");
 			if (page_count_container == null) return;
-			Array.prototype.slice.call(doc.getElementById("sitecorner").children, 0).forEach(function(elem) {
+			to_array(doc.getElementById("sitecorner").children).forEach(function(elem) {
 				if (elem.tagName != "A" && elem.tagName != "I") return;
 				console.log(elem.href)
 				if (elem.tagName == "A" && !(elem.hasAttribute("data-replies") || elem.href.indexOf("/ip/") >= 0)) return;
 				var newa = document.createElement("a");
-				Array.prototype.slice.call(elem.attributes, 0).forEach(function (attr) {
+				to_array(elem.attributes).forEach(function (attr) {
 					newa.setAttribute(attr.nodeName, attr.value);
 				});
 				newa.innerHTML = elem.innerHTML;
@@ -123,7 +126,7 @@ var onload = function() {
 	}
 
 	// Load new reply count for everything
-	Array.prototype.slice.call(document.getElementsByTagName("a"), 0).forEach(doTheThing);
+	to_array(document.getElementsByTagName("a")).forEach(doTheThing);
 
 	
 	// Initialize infinite scrolling
@@ -255,7 +258,7 @@ for color inversion
 var main_bg = "white";
 var main_color = "black";
 var apply_style = function apply_style(selector, extras) {
-	document.querySelectorAll(selector).forEach(function(elem) {
+	to_array(document.querySelectorAll(selector)).forEach(function(elem) {
 		elem.style.color = main_color;
 		if (extras != null && extras != undefined) {
 			extras.forEach(function(prop) {
@@ -295,10 +298,11 @@ var invert = function invert() {
 var open_options = function open_options() {
 	/*
 	 * there are three cases
-	 * mobile (via injection still? can't tell) - have UnitedPropertiesIf
+	 * mobile (via injection still? can't tell) - have unitedPropertiesIf
 	 * desktop via GM - have GM_setValue;
 	 * desktop via injection - have localStorage aliased in via GM_setValue
 	 */
+	document.getElementById("options_button").innerHTML = "";
 	var all_options = document.createElement("div");
 	all_options.id = "all_options";
 	/*
@@ -321,12 +325,16 @@ var open_options = function open_options() {
 	var ew = document.getElementById("enable_wide");
 	ew.checked = GM_getValue("wide", "false").toLowerCase() == "true";
 	ew.addEventListener("change", function() {
+		if (typeof(unitedPropertiesIf) != "undefined") {
+			unitedPropertiesIf.toast("Wide mode only applicable to desktop");
+			return;
+		}
 		GM_setValue("wide", ew.checked.toString());
 		document.location.reload();
 	})
 	document.getElementById("disable_userscript").addEventListener("click", function() {
 		if (typeof(unitedPropertiesIf) != "undefined") {
-			alert("To disable userscript on mobile, click the three dots in the top right then click Settings.");
+			unitedPropertiesIf.toast("To disable userscript on mobile, click the three dots in the top right then click Settings.");
 			return;
 		}
 		GM_setValue("userscript", "false");
@@ -357,6 +365,7 @@ var init_settings_button = function init_settings_button() {
 	options.style.right = "10px";
 	options.style.padding = "3px";
 	options.style.borderRadius = "3px";
+	options.id = "options_button";
 	document.body.appendChild(options);
 	
 }
