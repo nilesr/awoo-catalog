@@ -99,7 +99,7 @@ var onload = function() {
 	}
 	started = true;
 
-	init_settings_button();
+	window.init_settings_button("Userscript Options", open_options);
 	var page_count_container = document.getElementById("pagecount_container");
 	if (page_count_container == null) {
 		replies_page_onload();
@@ -344,30 +344,6 @@ var open_options = function open_options() {
 		all_options.outerHTML = "";
 		document.location.reload();
 	})
-}
-
-var init_settings_button = function init_settings_button() {
-	// THIS DUPLICATES mobile.js
-	var options = document.createElement("span");
-	options.style.opacity = 0;
-	options.innerText = "Userscript Settings";
-	options.style.backgroundColor = "white";
-	options.style.color = "black";
-	options.addEventListener("mouseover", function() {
-		options.style.opacity = 1;
-	});
-	options.addEventListener("mouseout", function() {
-		options.style.opacity = 0;
-	});
-	options.addEventListener("click", open_options);
-	options.style.position = "fixed";
-	options.style.bottom = "10px";
-	options.style.left = "10px";
-	options.style.padding = "3px";
-	options.style.borderRadius = "3px";
-	options.id = "options_button";
-	document.body.appendChild(options);
-	
 }
 
 
