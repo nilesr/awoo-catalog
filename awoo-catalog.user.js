@@ -45,6 +45,8 @@ var btnListener = function btnListener() {
 				doc_elt.innerHTML = xhr.responseText
 			}
 			var added = 0;
+			var page_count_container = document.getElementById("pagecount_container");
+			if (page_count_container == null) return;
 			Array.prototype.slice.call(doc.getElementById("sitecorner").children, 0).forEach(function(elem) {
 				if (elem.tagName != "A" && elem.tagName != "I") return;
 				console.log(elem.href)
@@ -94,6 +96,13 @@ var onload = function() {
 	}
 	started = true;
 
+	init_settings_button();
+	var page_count_container = document.getElementById("pagecount_container");
+	if (page_count_container == null) {
+		replies_page_onload();
+		return;
+	}
+	// Pull the current page from the URL, kind of dirty
 	var href = document.location.href;
 	while (href.length > 0 && href[0] != "=") href = href.substr(1)
 	href = href.substr(1)
@@ -101,20 +110,23 @@ var onload = function() {
 		page = parseInt(href) + 1;
 	}
 
-	page_count_container = document.getElementById("pagecount_container");
 
+	// Create infinite scrolling "next page" button
 	if (document.getElementById("load_next_button") === null) {
 		var btn = document.createElement("button");
 		btn.classList.add("button_styled");
 		btn.id = "load_next_button";
-		//btn.innerText = "load page " + (page + 1);
 		btn.innerText = "load page " + (page + 1);
 		btn.addEventListener("click", btnListener);
 		page_count_container.appendChild(document.createElement("br"));
 		page_count_container.appendChild(btn);
 	}
 
+	// Load new reply count for everything
 	Array.prototype.slice.call(document.getElementsByTagName("a"), 0).forEach(doTheThing);
+
+	
+	// Initialize infinite scrolling
 	var doch = function() {
 		return $(document).height() - document.getElementById("draggable").clientHeight;
 	}
@@ -126,7 +138,25 @@ var onload = function() {
 			btnListener();
 		}
 	});
+
+	//check_wide();
+	check_invert();
 };
+var replies_page_onload = function replies_page_onload() {
+	check_wide();
+	check_invert();
+};
+var check_wide = function check_wide() {
+	if (GM_getValue("wide", "false").toLowerCase() == "true") {
+		go_wide();
+	}
+};
+var check_invert = function check_invert() {
+	if (GM_getValue("invert", "false").toLowerCase() == "true") {
+		invert();
+	}
+};
+
 var doTheThing = function doTheThing(a) {
 	if (!a.hasAttribute("data-replies")) {
 		return;
@@ -172,6 +202,164 @@ var set_onclick_listener = function set_onclick_listener(key, replies, a, elem, 
 		elem.innerHTML = grey(replies);
 	});
 };
+
+/*
+for wide mode
+	on header img
+		height: 150px
+		width: auto
+	on sitecorner
+		width: 80%
+*/
+var go_wide = function go_wide() {
+	var img = document.querySelector("#sitecorner > a:nth-child(1) > img");
+	if (img != null) {
+		//img.style.height = "130px";
+		img.style.width = "395px";
+	}
+	var corner = document.getElementById("sitecorner");
+	if (corner == null) corner = document.getElementById("maincontainer");
+	if (corner != null) {
+		corner.style.width = "80%";
+	}
+}
+/*
+for color inversion
+	#newthread
+	textarea, #draggable > form > input[type='text']
+	#boardtitle
+	small
+	button_styled
+		background-color
+		border-color
+	special_styled
+		background-color
+		border-color
+	a
+	.boarda
+	#sitecorner
+		only border-color
+	#title
+	.title
+	.fa
+	--- below here from views ---
+	#maincontainer
+		border-color
+	#draggable
+		border-color
+	label
+	.comment
+	form
+	#wordcount
+*/
+var main_bg = "white";
+var main_color = "black";
+var apply_style = function apply_style(selector, extras) {
+	document.querySelectorAll(selector).forEach(function(elem) {
+		elem.style.color = main_color;
+		if (extras != null && extras != undefined) {
+			extras.forEach(function(prop) {
+				if (prop == "backgroundColor") {
+					elem.style[prop] = main_bg;
+				} else {
+					elem.style[prop] = main_color;
+				}
+			})
+		}
+	});
+}
+var invert = function invert() {
+	document.body.style.backgroundColor = main_bg;
+	apply_style("#newthread");
+	apply_style("textarea, #draggable > form > input[type='text']");
+	apply_style("#boardtitle");
+	apply_style("small");
+	apply_style(".button_styled", ["backgroundColor", "borderColor"]);
+	apply_style(".special_styled", ["backgroundColor", "borderColor"]);
+	apply_style("a");
+	apply_style(".boarda");
+	apply_style("#sitecorner", ["borderColor"]);
+	apply_style("#title");
+	apply_style(".title");
+	apply_style(".fa");
+	apply_style("#maincontainer", ["borderColor"]);
+	apply_style("#draggable", ["borderColor"]);
+	apply_style("label");
+	apply_style(".comment");
+	apply_style("form");
+	apply_style("#wordcount");
+}
+
+
+
+var open_options = function open_options() {
+	/*
+	 * there are three cases
+	 * mobile (via injection still? can't tell) - have UnitedPropertiesIf
+	 * desktop via GM - have GM_setValue;
+	 * desktop via injection - have localStorage aliased in via GM_setValue
+	 */
+	var all_options = document.createElement("div");
+	all_options.id = "all_options";
+	/*
+<div style="z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: absolute; top: 10%; left: 10%; width: 60%; padding: 10%;">
+	<input type="checkbox" id="enable_wide" name="enable_wide" /><label for="enable_wide">Wide mode</label><br />
+	<input type="checkbox" id="enable_invert" name="enable_invert" /><label for="enable_invert">Invert colors</label><br />
+	<button id="disable_userscript">Disable userscript</button><br />
+	<button id="userscript_close">Close</button>
+</div>
+	 */
+	all_options.innerHTML = "<div style=\"z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: absolute; top: 10%; left: 10%; width: 60%; padding: 10%;\">\n\t<input type=\"checkbox\" id=\"enable_wide\" name=\"enable_wide\" /><label for=\"enable_wide\">Wide mode</label><br />\n\t<input type=\"checkbox\" id=\"enable_invert\" name=\"enable_invert\" /><label for=\"enable_invert\">Invert colors</label><br />\n\t<button id=\"disable_userscript\">Disable userscript</button><br />\n\t<button id=\"userscript_close\">Close</button>\n</div>\n";
+
+	document.body.appendChild(all_options);
+	var ei = document.getElementById("enable_invert");
+	ei.checked = GM_getValue("invert", "false").toLowerCase() == "true";
+	ei.addEventListener("change", function() {
+		GM_setValue("invert", ei.checked.toString());
+		document.location.reload();
+	})
+	var ew = document.getElementById("enable_wide");
+	ew.checked = GM_getValue("wide", "false").toLowerCase() == "true";
+	ew.addEventListener("change", function() {
+		GM_setValue("wide", ew.checked.toString());
+		document.location.reload();
+	})
+	document.getElementById("disable_userscript").addEventListener("click", function() {
+		if (typeof(unitedPropertiesIf) != "undefined") {
+			alert("To disable userscript on mobile, click the three dots in the top right then click Settings.");
+			return;
+		}
+		GM_setValue("userscript", "false");
+		document.location.reload();
+	})
+	document.getElementById("userscript_close").addEventListener("click", function() {
+		all_options.outerHTML = "";
+		document.location.reload();
+	})
+}
+
+var init_settings_button = function init_settings_button() {
+	// THIS DUPLICATES mobile.js
+	var options = document.createElement("span");
+	options.style.opacity = 0;
+	options.innerText = "Userscript Settings";
+	options.style.backgroundColor = "white";
+	options.style.color = "black";
+	options.addEventListener("mouseover", function() {
+		options.style.opacity = 1;
+	});
+	options.addEventListener("mouseout", function() {
+		options.style.opacity = 0;
+	});
+	options.addEventListener("click", open_options);
+	options.style.position = "fixed";
+	options.style.bottom = "10px";
+	options.style.right = "10px";
+	options.style.padding = "3px";
+	options.style.borderRadius = "3px";
+	document.body.appendChild(options);
+	
+}
 
 
 // In chrome, the userscript runs in a sandbox, and will never see these events
