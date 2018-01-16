@@ -185,6 +185,8 @@ var check_mobile = function check_mobile() {
 	a.innerText = "la/u/ncher" + version;
 	h.appendChild(document.createTextNode(", "));
 	h.appendChild(a);
+	// Hack for webkit
+	a.previousSibling.data = ", ";
 }
 var infscroll = function infscroll() {
 	var page_count_container = document.getElementById("pagecount_container");
