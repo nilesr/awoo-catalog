@@ -412,6 +412,18 @@ var draw_bar = function draw_bar(old_read_count, scroll_to) {
 	var comments = to_array(document.getElementsByClassName("comment")).filter(function(elem) { return elem.id != "hover"; });
 	var bar = document.createElement("hr");
 	bar.id = "bar";
+	try {
+		if (typeof(unitedPropertiesIf) != "undefined") {
+			var i = parseInt(unitedPropertiesIf.getProperty("toolbar_color"))
+			if (isNaN(i) || i == 0) throw 0;
+			i &= 0xFFFFFF;
+			var c = i.toString(16);
+			while (c.length < 6) c = "0" + c;
+			bar.style.borderTopColor = "#" + c
+		}
+	} catch (e) {
+		// drop
+	}
 	document.getElementById("sitecorner").insertBefore(bar, comments[old_read_count]);
 	var br = bar.previousElementSibling;
 	if (br.tagName.toUpperCase() == "BR") br.outerHTML = ""
