@@ -403,6 +403,7 @@ var open_options = function open_options() {
 	});
 };
 var draw_bar = function draw_bar(old_read_count, scroll_to) {
+	document.getElementById("submit").onclick = hooked_submit;
 	if (old_read_count == -1) return;
 	var comments = to_array(document.getElementsByClassName("comment")).filter(function(elem) { return elem.id != "hover"; });
 	var bar = document.createElement("hr");
@@ -424,6 +425,13 @@ var replies_page_update_key = function replies_page_update_key() {
 	return old_read_count;
 };
 
+var hooked_submit = function hooked_submit() {
+	var board = document.getElementById("board").value;
+	var id = document.getElementById("parent").value;
+	var key = board + ":" + id;
+	GM_setValue(key, total_number_of_posts);
+	submit_form(document.getElementById("form"), "/reply");
+};
 
 // In chrome, the userscript runs in a sandbox, and will never see these events
 // Hence the run-at document-end
