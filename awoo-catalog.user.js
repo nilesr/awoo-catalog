@@ -186,6 +186,7 @@ var check_mobile = function check_mobile() {
 	h.appendChild(document.createTextNode(", "));
 	h.appendChild(a);
 	// Hack for webkit
+	a.parentElement.normalize();
 	a.previousSibling.data = ", ";
 }
 var infscroll = function infscroll() {
