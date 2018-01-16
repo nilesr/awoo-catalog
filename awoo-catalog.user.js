@@ -122,6 +122,7 @@ var onload = function() {
 	} else {
 		generic_onload();
 	}
+	check_mobile();
 	window.init_settings_button("Userscript Options", open_options);
 }
 
@@ -163,7 +164,27 @@ var check_bar = function check_bar(old_replies_count) {
 		draw_bar(old_replies_count, GM_getValue("scroll_to_bar", "false").toLowerCase() == "true");
 	}
 };
-
+var check_mobile = function check_mobile() {
+	if (typeof(UnitedPropertiesIf) == "undefined") return;
+	var h = document.getElementsByClassName("footer");
+	if (h.length == 0) return;
+	h = h[0];
+	if (h == null) return; // can't be too careful around javascript
+	var a = document.createElement("a");
+	a.href = "https://github.com/nilesr/United4";
+	a.style.fontSize = "x-small";
+	a.style.display = "inline-block";
+	a.target = "_blank";
+	var version;
+	try {
+		version = " " + to_array(UnitedPropertiesIf.getVersionCode().toString()).join(".");
+	} catch (e) {
+		version = "";
+	}
+	a.innerText = "la/u/ncher" + version;
+	h.appendChild(document.createTextNode(", "));
+	h.appendChild(a);
+}
 var infscroll = function infscroll() {
 	var page_count_container = document.getElementById("pagecount_container");
 	// Pull the current page from the URL, kind of dirty
