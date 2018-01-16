@@ -165,8 +165,8 @@ var check_bar = function check_bar(old_replies_count) {
 	}
 };
 var check_mobile = function check_mobile() {
-	if (typeof(UnitedPropertiesIf) == "undefined") return;
-	var h = document.getElementsByClassName("footer");
+	if (typeof(unitedPropertiesIf) == "undefined") return;
+	var h = document.getElementsByTagName("footer");
 	if (h.length == 0) return;
 	h = h[0];
 	if (h == null) return; // can't be too careful around javascript
@@ -175,9 +175,10 @@ var check_mobile = function check_mobile() {
 	a.style.fontSize = "x-small";
 	a.style.display = "inline-block";
 	a.target = "_blank";
+	a.classList.add("comment-styled");
 	var version;
 	try {
-		version = " " + to_array(UnitedPropertiesIf.getVersionCode().toString()).join(".");
+		version = " " + to_array(unitedPropertiesIf.getVersionCode().toString()).join(".");
 	} catch (e) {
 		version = "";
 	}
@@ -429,7 +430,7 @@ var hooked_submit = function hooked_submit() {
 	var board = document.getElementById("board").value;
 	var id = document.getElementById("parent").value;
 	var key = board + ":" + id;
-	GM_setValue(key, total_number_of_posts);
+	GM_setValue(key, total_number_of_posts + 1);
 	submit_form(document.getElementById("form"), "/reply");
 };
 
