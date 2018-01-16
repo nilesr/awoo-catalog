@@ -100,6 +100,8 @@ var apply_defaults = function apply_defaults() {
 	apply_one_default("wide", "false");
 	apply_one_default("invert", "false");
 	apply_one_default("infscroll", "true");
+	apply_one_default("bar", "false");
+	apply_one_default("scroll_to_bar", "false");
 }
 
 var onload = function() {
@@ -113,18 +115,22 @@ var onload = function() {
 	apply_defaults();
 
 	var page_count_container = document.getElementById("pagecount_container");
-	if (page_count_container == null) {
+	if (page_count_container != null) {
+		board_page_onload();
+	} else if (document.getElementById("date_last_modified") != null) {
 		replies_page_onload();
 	} else {
-		board_page_onload();
+		generic_onload();
 	}
 	window.init_settings_button("Userscript Options", open_options);
 }
 
 var replies_page_onload = function replies_page_onload() {
+	var old_replies_count = replies_page_update_key();
 	check_wide();
 	check_invert();
 	// do not check infscroll
+	check_bar(old_replies_count);
 };
 var board_page_onload = function board_page_onload() {
 	// Load new reply count for everything
@@ -132,6 +138,9 @@ var board_page_onload = function board_page_onload() {
 	check_invert();
 	check_infscroll();
 	// do not check wide
+};
+var generic_onload = function board_page_onload() {
+	check_invert();
 };
 
 var check_infscroll = function check_infscroll() {
@@ -147,6 +156,11 @@ var check_wide = function check_wide() {
 var check_invert = function check_invert() {
 	if (GM_getValue("invert", "false").toLowerCase() == "true") {
 		invert();
+	}
+};
+var check_bar = function check_bar(old_replies_count) {
+	if (GM_getValue("bar", "false").toLowerCase() == "true") {
+		draw_bar(old_replies_count, GM_getValue("scroll_to_bar", "false").toLowerCase() == "true");
 	}
 };
 
@@ -224,7 +238,7 @@ var comparison_and_update_elem = function(key, replies, a, elem, closed, oldrepl
 var set_onclick_listener = function set_onclick_listener(key, replies, a, elem, closed) {
 	//console.log(key);
 	a.addEventListener("click", function() {
-		GM_setValue(key, replies);
+		//GM_setValue(key, replies);
 		elem.innerHTML = grey(replies);
 	});
 };
@@ -316,7 +330,14 @@ var invert = function invert() {
 	apply_style("#wordcount");
 }
 
-
+var add_handler = function add_handler(prop) {
+	var elem = document.getElementById("enable_" + prop);
+	elem.checked = GM_getValue(prop, "false").toLowerCase() == "true";
+	elem.addEventListener("change", function() {
+		GM_setValue(prop, elem.checked.toString());
+		document.location.reload();
+	})
+}
 
 var open_options = function open_options() {
 	/*
@@ -333,35 +354,20 @@ var open_options = function open_options() {
 	<input type="checkbox" id="enable_wide" name="enable_wide" /><label for="enable_wide">Wide mode</label><br />
 	<input type="checkbox" id="enable_invert" name="enable_invert" /><label for="enable_invert">Invert colors</label><br />
 	<input type="checkbox" id="enable_infscroll" name="enable_infscroll" /><label for="enable_infscroll">Infinite scrolling</label><br />
+	<input type="checkbox" id="enable_bar" name="enable_bar" /><label for="enable_bar">Draw bar at beginning of new replies</label><br />
+	<input type="checkbox" id="enable_scroll_to_bar" name="enable_scroll_to_bar" /><label for="enable_scroll_to_bar">Jump to bar on load</label><br />
 	<button id="disable_userscript">Disable userscript</button><br />
 	<button id="userscript_close">Close</button>
 </div>
 	 */
-	all_options.innerHTML = "<div style=\"z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: fixed; top: 10%; left: 10%; width: 60%; padding: 10%;\">\n\t<input type=\"checkbox\" id=\"enable_wide\" name=\"enable_wide\" /><label for=\"enable_wide\">Wide mode</label><br />\n\t<input type=\"checkbox\" id=\"enable_invert\" name=\"enable_invert\" /><label for=\"enable_invert\">Invert colors</label><br />\n\t<input type=\"checkbox\" id=\"enable_infscroll\" name=\"enable_infscroll\" /><label for=\"enable_infscroll\">Infinite scrolling</label><br />\n\t<button id=\"disable_userscript\">Disable userscript</button><br />\n\t<button id=\"userscript_close\">Close</button>\n</div>\n";
+	all_options.innerHTML = "<div style=\"z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: fixed; top: 10%; left: 10%; width: 60%; padding: 10%;\">\n\t<input type=\"checkbox\" id=\"enable_wide\" name=\"enable_wide\" /><label for=\"enable_wide\">Wide mode</label><br />\n\t<input type=\"checkbox\" id=\"enable_invert\" name=\"enable_invert\" /><label for=\"enable_invert\">Invert colors</label><br />\n\t<input type=\"checkbox\" id=\"enable_infscroll\" name=\"enable_infscroll\" /><label for=\"enable_infscroll\">Infinite scrolling</label><br />\n\t<input type=\"checkbox\" id=\"enable_bar\" name=\"enable_bar\" /><label for=\"enable_bar\">Draw bar at beginning of new replies</label><br />\n\t<input type=\"checkbox\" id=\"enable_scroll_to_bar\" name=\"enable_scroll_to_bar\" /><label for=\"enable_scroll_to_bar\">Jump to bar on load</label><br />\n\t<button id=\"disable_userscript\">Disable userscript</button><br />\n\t<button id=\"userscript_close\">Close</button>\n</div>\n";
 
 	document.body.appendChild(all_options);
-	var ei = document.getElementById("enable_invert");
-	ei.checked = GM_getValue("invert", "false").toLowerCase() == "true";
-	ei.addEventListener("change", function() {
-		GM_setValue("invert", ei.checked.toString());
-		document.location.reload();
-	})
-	var ew = document.getElementById("enable_wide");
-	ew.checked = GM_getValue("wide", "false").toLowerCase() == "true";
-	ew.addEventListener("change", function() {
-		if (typeof(unitedPropertiesIf) != "undefined") {
-			unitedPropertiesIf.toast("Wide mode only applicable to desktop");
-			return;
-		}
-		GM_setValue("wide", ew.checked.toString());
-		document.location.reload();
-	})
-	var eis = document.getElementById("enable_infscroll");
-	eis.checked = GM_getValue("infscroll", "false").toLowerCase() == "true";
-	eis.addEventListener("change", function() {
-		GM_setValue("infscroll", eis.checked.toString());
-		document.location.reload();
-	})
+	add_handler("invert");
+	add_handler("wide");
+	add_handler("infscroll");
+	add_handler("bar");
+	add_handler("scroll_to_bar");
 	document.getElementById("disable_userscript").addEventListener("click", function() {
 		if (typeof(unitedPropertiesIf) != "undefined") {
 			unitedPropertiesIf.toast("To disable userscript on mobile, click the three dots in the top right then click Settings.");
@@ -369,12 +375,33 @@ var open_options = function open_options() {
 		}
 		GM_setValue("userscript", "false");
 		document.location.reload();
-	})
+	});
 	document.getElementById("userscript_close").addEventListener("click", function() {
 		all_options.outerHTML = "";
 		document.location.reload();
-	})
-}
+	});
+};
+var draw_bar = function draw_bar(old_read_count, scroll_to) {
+	if (old_read_count == -1) return;
+	var comments = to_array(document.getElementsByClassName("comment")).filter(function(elem) { return elem.id != "hover"; });
+	var bar = document.createElement("hr");
+	bar.id = "bar";
+	document.getElementById("sitecorner").insertBefore(bar, comments[old_read_count]);
+	var br = bar.previousElementSibling;
+	if (br.tagName.toUpperCase() == "BR") br.outerHTML = ""
+	if (scroll_to) {
+		bar.scrollIntoView(true);
+	}
+};
+var replies_page_update_key = function replies_page_update_key() {
+	var board = document.getElementById("board").value;
+	var id = document.getElementById("parent").value;
+	var key = board + ":" + id;
+	var old_read_count = GM_getValue(key, -1);
+	GM_setValue(key, total_number_of_posts);
+	if (old_read_count == total_number_of_posts) old_read_count = -1;
+	return old_read_count;
+};
 
 
 // In chrome, the userscript runs in a sandbox, and will never see these events
