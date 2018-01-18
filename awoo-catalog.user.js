@@ -251,6 +251,10 @@ var doTheThing = function doTheThing(a) {
 	var key = board + ":" + id;
 	var oldreplies = GM_getValue(key, 0);
 	var replies = Number(a.getAttribute("data-replies"));
+	if (isNaN(replies)) {
+		elem.innerText = a.getAttribute("data-replies");
+		return;
+	}
 	comparison_and_update_elem(key, replies, a, elem, closed, oldreplies);
 };
 
