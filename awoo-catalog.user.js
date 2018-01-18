@@ -432,9 +432,7 @@ var draw_bar = function draw_bar(old_read_count, scroll_to) {
 	}
 };
 var replies_page_update_key = function replies_page_update_key() {
-	var board = document.getElementById("board").value;
-	var id = document.getElementById("parent").value;
-	var key = board + ":" + id;
+	var key = window.board + ":" + window.id;
 	var old_read_count = GM_getValue(key, -1);
 	GM_setValue(key, total_number_of_posts);
 	if (old_read_count == total_number_of_posts) old_read_count = -1;
@@ -442,9 +440,7 @@ var replies_page_update_key = function replies_page_update_key() {
 };
 
 var hooked_submit = function hooked_submit() {
-	var board = document.getElementById("board").value;
-	var id = document.getElementById("parent").value;
-	var key = board + ":" + id;
+	var key = window.board + ":" + window.id;
 	GM_setValue(key, total_number_of_posts + 1);
 	submit_form(document.getElementById("form"), "/reply");
 };
