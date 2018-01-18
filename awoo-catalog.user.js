@@ -19,9 +19,9 @@ var page = 1;
 var to_array = function to_array(thing) {
 	return Array.prototype.slice.call(thing, 0)
 }
-var btnListener = function btnListener() {
+var btnListener = function btnListener(forScroll) {
 	if (request_in_progress) return;
-	if (out_of_posts) {
+	if (out_of_posts && !forScroll) {
 		var brd = document.getElementById("board");
 		if (brd.tagName.toUpperCase() == "SELECT") {
 			brd = "";
@@ -214,7 +214,9 @@ var infscroll = function infscroll() {
 		btn.classList.add("button_styled");
 		btn.id = "load_next_button";
 		btn.innerText = "load page " + (page + 1);
-		btn.addEventListener("click", btnListener);
+		btn.addEventListener("click", function() {
+			btnListener(false);
+		});
 		page_count_container.appendChild(document.createElement("br"));
 		page_count_container.appendChild(btn);
 	}
@@ -224,10 +226,10 @@ var infscroll = function infscroll() {
 	}
 	var win = $(window);
 	var winh = function() { return win.height(); };
-	if (doch() <= winh()) btnListener();
+	if (doch() <= winh()) btnListener(true);
 	win.scroll(function() {
 		if (doch() - winh() == win.scrollTop()) {
-			btnListener();
+			btnListener(true);
 		}
 	});
 };
