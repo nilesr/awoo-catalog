@@ -87,7 +87,8 @@ var btnListener = function btnListener() {
 			});
 			if (added == 0) {
 				out_of_posts = true;
-				btn.innerText = "No more posts.";
+				btn.innerText = "No more posts. Go to Archive?";
+				btn.disabled = false;
 			} else {
 				btn.disabled = false;
 				btn.innerText = "Load page " + (page + 1);
