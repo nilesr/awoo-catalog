@@ -21,7 +21,16 @@ var to_array = function to_array(thing) {
 }
 var btnListener = function btnListener() {
 	if (request_in_progress) return;
-	if (out_of_posts) return;
+	if (out_of_posts) {
+		var brd = document.getElementById("board");
+		if (brd.tagName.toUpperCase() == "SELECT") {
+			brd = "";
+		} else {
+			brd = brd.value;
+		}
+		document.location.href = "/archive/" + brd;
+		return;
+	}
 	request_in_progress = true;
 	var btn = document.getElementById("load_next_button");
 	var href = document.location.href;
