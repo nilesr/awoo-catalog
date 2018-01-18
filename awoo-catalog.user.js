@@ -407,7 +407,10 @@ var open_options = function open_options() {
 	});
 };
 var draw_bar = function draw_bar(old_read_count, scroll_to) {
-	document.getElementById("submit").onclick = hooked_submit;
+	var submit = document.getElementById("submit");
+	if (submit != null) {
+		submit.onclick = hooked_submit;
+	}
 	if (old_read_count == -1) return;
 	var comments = to_array(document.getElementsByClassName("comment")).filter(function(elem) { return elem.id != "hover"; });
 	var bar = document.createElement("hr");
