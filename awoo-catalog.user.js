@@ -144,6 +144,8 @@ var replies_page_onload = function replies_page_onload() {
 	check_invert();
 	// do not check infscroll
 	check_bar(old_replies_count);
+	check_show_yous();
+	check_display_my_id();
 };
 var board_page_onload = function board_page_onload() {
 	// Load new reply count for everything
@@ -174,6 +176,16 @@ var check_invert = function check_invert() {
 var check_bar = function check_bar(old_replies_count) {
 	if (GM_getValue("bar", "false").toLowerCase() == "true") {
 		draw_bar(old_replies_count, GM_getValue("scroll_to_bar", "false").toLowerCase() == "true");
+	}
+};
+var check_show_yous = function check_show_yous(old_replies_count) {
+	if (GM_getValue("show_yous", "false").toLowerCase() == "true") {
+		show_yous();
+	}
+};
+var check_display_my_id = function check_display_my_id(old_replies_count) {
+	if (GM_getValue("display_my_id", "false").toLowerCase() == "true") {
+		display_my_id();
 	}
 };
 var check_mobile = function check_mobile() {
@@ -223,6 +235,7 @@ var infscroll = function infscroll() {
 		page_count_container.appendChild(btn);
 	}
 	// Initialize infinite scrolling
+	if (typeof($) == "undefined") return;
 	var doch = function() {
 		return $(document).height() - document.getElementById("draggable").clientHeight;
 	}
@@ -378,7 +391,6 @@ var add_handler = function add_handler(prop) {
 	elem.checked = GM_getValue(prop, "false").toLowerCase() == "true";
 	elem.addEventListener("change", function() {
 		GM_setValue(prop, elem.checked.toString());
-		document.location.reload();
 	})
 }
 
@@ -394,16 +406,19 @@ var open_options = function open_options() {
 	all_options.id = "all_options";
 	/*
 <div style="z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: fixed; top: 10%; left: 10%; width: 60%; padding: 10%;">
+	Changes will take effect when you reload the page.
 	<input type="checkbox" id="enable_wide" name="enable_wide" /><label for="enable_wide">Wide mode</label><br />
 	<input type="checkbox" id="enable_invert" name="enable_invert" /><label for="enable_invert">Invert colors</label><br />
 	<input type="checkbox" id="enable_infscroll" name="enable_infscroll" /><label for="enable_infscroll">Infinite scrolling</label><br />
 	<input type="checkbox" id="enable_bar" name="enable_bar" /><label for="enable_bar">Draw bar at beginning of new replies</label><br />
 	<input type="checkbox" id="enable_scroll_to_bar" name="enable_scroll_to_bar" /><label for="enable_scroll_to_bar">Jump to bar on load</label><br />
+	<input type="checkbox" id="enable_show_yous" name="enable_show_yous" /><label for="enable_show_yous">Display (You)s and (OP)s</label><br />
+	<input type="checkbox" id="enable_display_my_id" name="enable_display_my_id" /><label for="enable_display_my_id">Show me my ID</label><br />
 	<button id="disable_userscript">Disable userscript</button><br />
-	<button id="userscript_close">Close</button>
+	<button id="userscript_close">Save and reload</button>
 </div>
 	 */
-	all_options.innerHTML = "<div style=\"z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: fixed; top: 10%; left: 10%; width: 60%; padding: 10%;\">\n\t<input type=\"checkbox\" id=\"enable_wide\" name=\"enable_wide\" /><label for=\"enable_wide\">Wide mode</label><br />\n\t<input type=\"checkbox\" id=\"enable_invert\" name=\"enable_invert\" /><label for=\"enable_invert\">Invert colors</label><br />\n\t<input type=\"checkbox\" id=\"enable_infscroll\" name=\"enable_infscroll\" /><label for=\"enable_infscroll\">Infinite scrolling</label><br />\n\t<input type=\"checkbox\" id=\"enable_bar\" name=\"enable_bar\" /><label for=\"enable_bar\">Draw bar at beginning of new replies</label><br />\n\t<input type=\"checkbox\" id=\"enable_scroll_to_bar\" name=\"enable_scroll_to_bar\" /><label for=\"enable_scroll_to_bar\">Jump to bar on load</label><br />\n\t<button id=\"disable_userscript\">Disable userscript</button><br />\n\t<button id=\"userscript_close\">Close</button>\n</div>\n";
+	all_options.innerHTML = "<div style=\"z-index: 100; font-size: 1em; font-family: sans-serif; background-color: #ddd; color: black; position: fixed; top: 10%; left: 10%; width: 60%; padding: 10%;\">\n\tChanges will take effect when you reload the page.\n\t<input type=\"checkbox\" id=\"enable_wide\" name=\"enable_wide\" /><label for=\"enable_wide\">Wide mode</label><br />\n\t<input type=\"checkbox\" id=\"enable_invert\" name=\"enable_invert\" /><label for=\"enable_invert\">Invert colors</label><br />\n\t<input type=\"checkbox\" id=\"enable_infscroll\" name=\"enable_infscroll\" /><label for=\"enable_infscroll\">Infinite scrolling</label><br />\n\t<input type=\"checkbox\" id=\"enable_bar\" name=\"enable_bar\" /><label for=\"enable_bar\">Draw bar at beginning of new replies</label><br />\n\t<input type=\"checkbox\" id=\"enable_scroll_to_bar\" name=\"enable_scroll_to_bar\" /><label for=\"enable_scroll_to_bar\">Jump to bar on load</label><br />\n\t<input type=\"checkbox\" id=\"enable_show_yous\" name=\"enable_show_yous\" /><label for=\"enable_show_yous\">Display (You)s and (OP)s</label><br />\n\t<input type=\"checkbox\" id=\"enable_display_my_id\" name=\"enable_display_my_id\" /><label for=\"enable_display_my_id\">Show me my ID</label><br />\n\t<button id=\"disable_userscript\">Disable userscript</button><br />\n\t<button id=\"userscript_close\">Save and reload</button>\n</div>\n"
 
 	document.body.appendChild(all_options);
 	add_handler("invert");
@@ -411,6 +426,8 @@ var open_options = function open_options() {
 	add_handler("infscroll");
 	add_handler("bar");
 	add_handler("scroll_to_bar");
+	add_handler("show_yous");
+	add_handler("display_my_id");
 	document.getElementById("disable_userscript").addEventListener("click", function() {
 		if (typeof(unitedPropertiesIf) != "undefined") {
 			unitedPropertiesIf.toast("To disable userscript on mobile, click the three dots in the top right then click Settings.");
@@ -465,6 +482,48 @@ var hooked_submit = function hooked_submit() {
 	GM_setValue(key, total_number_of_posts + 1);
 	submit_form(document.getElementById("form"), "/reply");
 };
+
+var show_yous = function show_yous() {
+	to_array(document.getElementsByClassName("referencer")).forEach(function(elem) {
+		var refers_to = elem.getAttribute("data-refers-to");
+		if (refers_to == window.id) {
+			elem.innerText += " (OP)"
+		}
+		var is = elem.getAttribute("data-is");
+		var _parent = document.getElementById("comment-" + refers_to);
+		if (_parent == null) return;
+		_parent = _parent.getElementsByClassName("post_number")[0];
+		parent_hash = _parent.getElementsByClassName("hash")[0];
+		if (parent_hash.innerText == window.your_hash) {
+			elem.innerText += " (You)";
+		}
+	});
+};
+var display_my_id = function display_my_id() {
+	var reply_box = document.getElementById("reply_box");
+	if (reply_box == null) return;
+	var n = document.createElement("span");
+	n.innerText = "Replying as:"
+	var s = document.createElement("span");
+	s.style.backgroundColor = "#" + window.your_hash;
+	s.innerText = window.your_hash;
+	s.style.padding = "2px";
+	s.style.borderRadius = "3px";
+	var color = parseInt(window.your_hash, 16);
+	var r = color & 0xFF0000, g = color & 0xFF00, b = color & 0xFF;
+	r >>= 16; g >>= 8;
+	r += 127; g += 127; b += 127;
+	r &= 0xFF; g &= 0xFF; b &= 0xFF;
+	color = (r << 16) + (g << 8) + b;
+	color = color.toString(16);
+	while (color.length < 6) color = "0" + color;
+	s.style.color = "#" + color;
+	n.appendChild(s)
+	n.style.float = "left";
+	n.classList.add("comment-styled");
+	reply_box.parentNode.insertBefore(n, reply_box);
+};
+
 
 // In chrome, the userscript runs in a sandbox, and will never see these events
 // Hence the run-at document-end
