@@ -33,11 +33,11 @@ var btnListener = function btnListener(forScroll) {
 	}
 	request_in_progress = true;
 	var btn = document.getElementById("load_next_button");
-	var href = document.location.href;
-	var idx = 0;
-	while (idx < href.length && href[idx] != "?") idx++;
-	href = href.substr(0, idx);
-	var url = href + "?page=" + page;
+	var href = document.getElementById("pagecount_container").children[0].href;
+	var connector = href.match(/(\?|&)page=[0-9]+/)[1];
+	var regex_connector = connector == "?" ? "\\?" : connector
+	var regex = new RegExp(regex_connector + "page=[0-9]+");
+	var url = href.replace(regex, connector + "page=" + page);
 	console.log(url);
 	page++;
 	btn.innerText = "Loading...";
@@ -216,12 +216,9 @@ var check_mobile = function check_mobile() {
 var infscroll = function infscroll() {
 	var page_count_container = document.getElementById("pagecount_container");
 	// Pull the current page from the URL, kind of dirty
-	var href = document.location.href;
-	while (href.length > 0 && href[0] != "=") href = href.substr(1)
-	href = href.substr(1)
-	if (href.length > 0) {
-		page = parseInt(href) + 1;
-	}
+	var match_data = document.location.href.match(/(\?|&)page=([0-9]+)/)
+	if (match_data != null) page = parseInt(match_data[2]) + 1;
+
 	// Create infinite scrolling "next page" button
 	if (document.getElementById("load_next_button") === null) {
 		var btn = document.createElement("button");
