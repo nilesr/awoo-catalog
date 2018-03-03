@@ -72,7 +72,8 @@ var btnListener = function btnListener(forScroll) {
 				newa.innerHTML = elem.innerHTML;
 				var sc = document.getElementById("sitecorner");
 				if (elem.tagName == "A" && elem.href.indexOf("/ip/") < 0) {
-					sc.insertBefore(document.createElement("br"), page_count_container);
+					if (page_count_container.previousSibling.tagName.toUpperCase() != "BR")
+						sc.insertBefore(document.createElement("br"), page_count_container);
 				}
 				sc.insertBefore(newa, page_count_container);
 				if (elem.tagName == "A") {
