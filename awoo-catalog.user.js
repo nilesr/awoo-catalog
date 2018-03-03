@@ -47,7 +47,9 @@ var btnListener = function btnListener(forScroll) {
 		var done = this.DONE || 4;
 		if (this.readyState === done) {
 			console.log("Request done");
-			history.replaceState({}, window.title, url);
+			// only replace state on mobile
+			if (typeof(UnitedPropertiesIf) != 'undefined')
+				history.replaceState({}, window.title, url);
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(xhr.responseText, "text/html");
 			// Fix for android pre-4.4.4
